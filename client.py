@@ -7,11 +7,11 @@ username = sys.argv[2]
 # All available requests to make:
 get_requests = ['getAllTasks']
 post_requests = ['addFriend', 'addTask']
-put_requests = ['updateProfile', 'updateTask']
-delete_requests = ['deleteProfile', 'deleteFriend', 'deleteTask']
+put_requests = ['updateAccount', 'updateTask']
+delete_requests = ['deleteAccount', 'deleteFriend', 'deleteTask']
 
 # User authentication:
-response = requests.get(host + 'login', json={
+response = requests.post(host + 'login', json={
     'username': username,
     'password': getpass.getpass('Enter password: ')
 })
@@ -30,10 +30,10 @@ elif response.status_code == 404:
         })
         print('\nStatus Code: ' + str(response.status_code))
         if response.ok == False:
-            print('Failed to create a new account.')
             exit()
     except:
-        print('\nFailed to create a new account.')
+        print('Failed to create a new account.')
+        pp.pprint(response.json())
         exit()
     print('Successfully created a new account!')
     print('User Data:\n')
@@ -49,11 +49,10 @@ else:
 while True:
     path = input('\nEnter a request (e.g., "getAllTasks"): ')
     url = host + path
-    filename = input('Enter name of file containing data: ')
     print('')
 
     try:
-        with open(filename, 'r') as f:
+        with open('data.json', 'r') as f:
             data = json.load(f)
             data['username'] = username
     except:

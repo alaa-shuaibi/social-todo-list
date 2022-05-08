@@ -10,10 +10,14 @@ def index():
 @app.route('/signup', methods=['POST'])
 def signup():
     creds = request.json
+
+    if creds['password'] == '':
+        return jsonify({'error': 'Invalid password.'}), 400
+
     db_response = db.createUser(creds['username'], creds['password'])
     return jsonify(db_response), 200
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
     creds = request.json
     db_response = db.login(creds['username'], creds['password'])
@@ -26,13 +30,25 @@ def login():
     
     return jsonify(db_response), 200
 
-@app.route('/updateProfile', methods=['PUT'])
+@app.route('/updateAccount', methods=['PUT'])
 def updateProfile():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.updateUserData(data['username'], data)
 
-@app.route('/deleteProfile', methods=['DELETE'])
+    if 'error' in db_response:
+        return jsonify(db_response), 404
+     
+    return jsonify(db_response), 200
+
+@app.route('/deleteAccount', methods=['DELETE'])
 def deleteUser():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.deleteUser(data['username'], data['password'])
+
+    if 'error' in db_response:
+        return jsonify(db_response), 404
+    
+    return jsonify(db_response), 200
 
 @app.route('/addFriend', methods=['POST'])
 def addFriend():
