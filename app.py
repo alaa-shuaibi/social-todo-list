@@ -9,11 +9,22 @@ def index():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    return jsonify({}), 200
+    creds = request.json
+    db_response = db.createUser(creds['username'], creds['password'])
+    return jsonify(db_response), 200
 
 @app.route('/login')
 def login():
-    return jsonify({}), 200
+    creds = request.json
+    db_response = db.login(creds['username'], creds['password'])
+    
+    if 'error' in db_response:
+        if db_response['error'] == 'Incorrect password.':
+            return jsonify(db_response), 401
+        elif db_response['error'] == 'Could not find user.':
+            return jsonify(db_response), 404
+    
+    return jsonify(db_response), 200
 
 @app.route('/updateProfile', methods=['PUT'])
 def updateProfile():
