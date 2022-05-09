@@ -1,6 +1,6 @@
-import bson
 import pymongo
 from pymongo.errors import ConnectionFailure
+import bson
 import bcrypt
 
 # Connect to MongoDB database:
@@ -42,11 +42,13 @@ def createUser(username, password):
         'friend_list': [],
         'todo_list': [
             {
+                'task_id': str(bson.ObjectId()),
                 'task': 'Finish setting up account.',
                 'type': 'basic',
                 'isPublic': False,
             },
             {
+                'task_id': str(bson.ObjectId()),
                 'task': 'Finish tutorial.',
                 'type': 'course',
                 'isPublic': False
@@ -121,24 +123,81 @@ def deleteUser(username, password):
 
 # Add a friend to the friend list:
 def addFriend(username, friend_username):
-    pass
+    result = db['user_data'].update_one({'username': username}, {
+        '$addToSet': {
+            'friend_list': friend_username
+        }
+    })
+    
+    return db['user_data'].find_one({'username': username}, {'_id': False, 'friend_list': True})
 
 # Remove a friend from the friend list:
 def removeFriend(username, friend_username):
-    pass
+    result = db['user_data'].update_one({'username': username}, {
+        '$pull': {
+            'friend_list': friend_username
+        }
+    })
+
+    return db['user_data'].find_one({'username': username}, {'_id': False, 'friend_list': True})
 
 # Add a task to the to-do list:
 def addTask(username, data):
-    pass
+    task_id = str(bson.ObjectId())
+    result = db['user_data'].update_one({'username': username}, {
+        '$addToSet': {
+            'todo_list': {
+                'task_id': task_id,
+                'task': data['task'],
+                'type': data['type'],
+                'isPublic': data['isPublic']
+            }
+        }
+    })
+
+    for key in data:
+        try:
+            if key not in acceptable_task_fields or key in ['task_id', 'task', 'type', 'isPublic']:
+                continue
+
+            result = db['user_data'].update_one({'username': username, 'todo_list.task_id': task_id}, {
+                '$set': {'todo_list.$.' + key: data[key]}
+            })
+        except:
+            continue
+    
+    return db['user_data'].find_one({'username': username}, {'_id': False, 'todo_list': True})
 
 # Get all the tasks of a given user:
 def getAllTasks(username):
-    pass
+    try:
+        return db['user_data'].find_one({'username': username}, {'_id': False, 'todo_list': True})
+    except:
+        return {'error': 'Could not retrieve tasks.'}
 
 # Update the given task:
-def updateTask(task):
-    pass
+def updateTask(username, data):
+    task_id = data['task_id']
+
+    for key in data:
+        try:
+            if key not in acceptable_task_fields:
+                continue
+
+            result = db['user_data'].update_one({'username': username, 'todo_list.task_id': task_id}, {
+                '$set': {'todo_list.$.' + key: data[key]}
+            })
+        except:
+            continue
+    
+    return db['user_data'].find_one({'username': username}, {'_id': False, 'todo_list': True})
 
 # Delete the given task:
-def deleteTask(username, task):
-    pass
+def deleteTask(username, task_id):
+    result = db['user_data'].update_one({'username': username}, {
+        '$pull': {
+            'todo_list': {'task_id': task_id}
+        }
+    })
+
+    return db['user_data'].find_one({'username': username}, {'_id': False, 'todo_list': True})

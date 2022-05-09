@@ -1,4 +1,3 @@
-# File used to test requests to the server.
 import json, requests, sys, getpass, pprint as pp
 
 host = sys.argv[1]
@@ -8,7 +7,7 @@ username = sys.argv[2]
 get_requests = ['getAllTasks']
 post_requests = ['addFriend', 'addTask']
 put_requests = ['updateAccount', 'updateTask']
-delete_requests = ['deleteAccount', 'deleteFriend', 'deleteTask']
+delete_requests = ['deleteAccount', 'removeFriend', 'deleteTask']
 
 # User authentication:
 response = requests.post(host + 'login', json={
@@ -47,7 +46,7 @@ else:
     pp.pprint(response.json())
 
 while True:
-    path = input('\nEnter a request (e.g., "getAllTasks"): ')
+    path = input('\nEnter a request: ')
     url = host + path
     print('')
 

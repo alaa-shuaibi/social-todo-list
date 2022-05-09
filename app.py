@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify
 import database as db
+from flask import Flask, render_template, request, jsonify
+from bson import json_util
 
 app = Flask(__name__)
 
@@ -15,7 +16,7 @@ def signup():
         return jsonify({'error': 'Invalid password.'}), 400
 
     db_response = db.createUser(creds['username'], creds['password'])
-    return jsonify(db_response), 200
+    return jsonify(json_util.loads(json_util.dumps(db_response))), 200
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -52,27 +53,39 @@ def deleteUser():
 
 @app.route('/addFriend', methods=['POST'])
 def addFriend():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.addFriend(data['username'], data['friend_username'])
+    return jsonify(db_response), 200
 
-@app.route('/deleteFriend', methods=['DELETE'])
+@app.route('/removeFriend', methods=['DELETE'])
 def deleteFriend():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.removeFriend(data['username'], data['friend_username'])
+    return jsonify(db_response), 200
 
 @app.route('/addTask', methods=['POST'])
 def addTask():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.addTask(data['username'], data)
+    return jsonify(db_response), 200
 
 @app.route('/getAllTasks')
 def getAllTasks():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.getAllTasks(data['username'])
+    return jsonify(db_response), 200
 
 @app.route('/updateTask', methods=['PUT'])
 def updateTask():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.updateTask(data['username'], data)
+    return jsonify(db_response), 200
 
 @app.route('/deleteTask', methods=['DELETE'])
 def deleteTask():
-    return jsonify({}), 200
+    data = request.json
+    db_response = db.deleteTask(data['username'], data['task_id'])
+    return jsonify(db_response), 200
 
 if __name__ == '__main__':
     app.run()

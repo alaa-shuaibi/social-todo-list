@@ -1,9 +1,22 @@
 {
     "": "",
+    "hello": "world",
     "username": "",
     "new_username": "",
     "password": "",
     "first_name": "",
     "last_name": "",
-    "hello": "world"
+    "description": "",
+    "status": "",
+    "friend_username": "",
+    "task_id": "",
+    "task": "",
+    "type": "",
+    "isPublic": true,
+    "start_date": "",
+    "duration": "",
+    "repeated_date": "",
+    "location": "",
+    "isRemote": "",
+    "users_shared_with": ""
 }
