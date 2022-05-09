@@ -16,7 +16,7 @@ def signup():
         return jsonify({'error': 'Invalid password.'}), 400
 
     db_response = db.createUser(creds['username'], creds['password'])
-    return jsonify(json_util.loads(json_util.dumps(db_response))), 200
+    return jsonify(db_response), 200
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -35,10 +35,6 @@ def login():
 def updateProfile():
     data = request.json
     db_response = db.updateUserData(data['username'], data)
-
-    if 'error' in db_response:
-        return jsonify(db_response), 404
-     
     return jsonify(db_response), 200
 
 @app.route('/deleteAccount', methods=['DELETE'])

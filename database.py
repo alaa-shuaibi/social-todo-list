@@ -20,9 +20,6 @@ acceptable_task_fields = ['task', 'type', 'isPublic', 'start_date', 'duration', 
 
 # Creates a new user account:
 def createUser(username, password):
-    user_creds_coll = db['user_creds']
-    user_data_coll = db['user_data']
-
     _id = bson.ObjectId()
     salt = bcrypt.gensalt()
 
@@ -56,8 +53,8 @@ def createUser(username, password):
         ]
     }
 
-    user_creds_coll.insert_one(user_creds)
-    user_data_coll.insert_one(user_data)
+    db['user_creds'].insert_one(user_creds)
+    db['user_data'].insert_one(user_data)
 
     return db['user_data'].find_one({'username': username}, {'_id': False})
 
@@ -90,7 +87,7 @@ def updateUserData(username, data):
                 continue
 
             # Update current username to new one:
-            if key == 'new_username' & data['new_username'] != '':
+            if (key == 'new_username') & (data['new_username'] != ''):
                 result = db['user_data'].update_one({'username': curr_username}, {'$set': {'username': data[key]}})
                 if result.modified_count >= 1:
                     curr_username = data['new_username']
